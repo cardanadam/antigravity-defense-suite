@@ -1,0 +1,52 @@
+# Antigravity Defense Suite - Secrets & Build Artifacts
+
+# Environment variables (SECRETS!)
+.env
+.env.local
+.env.*.local
+
+# Canary tokens and secret patterns
+**/CANARY_*
+**/SECRET_*
+secrets/
+
+# Full attack database (only examples shown)
+negative_examples_dataset.md
+attack_database_full.json
+
+# Rust build artifacts
+**/target/
+**/*.exe
+**/*.pdb
+**/*.dll
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg-info/
+dist/
+build/
+wheels/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs (may contain sensitive info)
+*.log
+FIGHT_CLUB_LOG.md
+SECURITY_INCIDENTS.md
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Personal config
+SYSTEM_PROMPT.md
+ACTIVE_MEMORY.md
