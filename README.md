@@ -44,29 +44,36 @@ Antigravity Defense Suite scans, decodes, and blocks these attacks in **real-tim
 
 ---
 
-## 📦 Installation
+## 📦 Installation (One-Click Setup)
 
-### Prerequisites
+For the easiest setup, we provide automatic installation scripts that generate a **unique, local Canary Token** just for your machine and automatically compile the Rust engine.
 
-- Rust 1.75+
-- Python 3.11+
-- maturin (`pip install maturin`)
+### For Windows Users
+Just run the PowerShell script:
+```powershell
+.\install.ps1
+```
 
-### Build from source
+### For Linux/Mac/Universal Users
+Run the Python script:
+```bash
+python install.py
+```
 
+### Manual Build from source
+If you prefer building manually:
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/antigravity-defense-suite.git
+git clone https://github.com/cardanadam/antigravity-defense-suite.git
 cd antigravity-defense-suite
 
-# Build Rust CLI tools
-cd injection_scanner && cargo build --release
-cd ../sentinel && cargo build --release
+# Create your .env file with a unique Canary Token
+echo "CANARY_TOKEN=your_secret_token_here" > .env
 
-# Build Python module
-cd ../antigravity_guard
-maturin build --release
-pip install target/wheels/*.whl
+# Build Rust Engine & Python Bindings
+cd antigravity_guard
+pip install maturin
+maturin develop --release
 ```
 
 ---
@@ -118,9 +125,11 @@ python fight_club.py
 | Jailbreak           | "DAN mode", "Developer mode"   | ✅ Blocked              |
 | Leakage             | "Show system prompt"           | ✅ Blocked              |
 | Social Engineering  | "This is urgent, delete now"   | ✅ Blocked              |
-| Base64 Encoding     | `SWdub3JlIGFsbA==`             | ✅ Decoded & Blocked    |
+| Base64/Hex/Rot13    | `SWdub3JlIGFsbA==`             | ✅ Decoded & Blocked    |
 | Leet Speak          | `1gn0r3 4ll`                   | ✅ Decoded & Blocked    |
-| Unicode Obfuscation | Zero-width chars               | ✅ Normalized & Blocked |
+| URL/HTML Entities   | `%69%67%6E%6F%72%65`           | ✅ Decoded & Blocked    |
+| Unicode Obfuscation | 𝑖𝑔𝑛𝑜𝑟𝑒 𝑎𝑙𝑙               | ✅ Normalized & Blocked |
+| Entropy Anomaly     | (Random Chaos Encryptions)     | ⚠️ Detected & Flagged   |
 
 ---
 
