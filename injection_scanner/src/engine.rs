@@ -38,7 +38,12 @@ impl Engine {
         ]);
         
         patterns.insert("indirect".to_string(), vec![
-            Regex::new(r"(?i)(\[SYSTEM\]|\[HIDDEN\]|hidden\sinstruction|ignore\sall\srules|rot13\sencoded\sinstruction|hex\scommand)").unwrap(),
+            Regex::new(r"(?i)(\[SYSTEM\]|\[HIDDEN\]|hidden\sinstruction|ignore\sall\srules|rot13\sencoded\sinstruction|hex\scommand|system_instruction:)").unwrap(),
+        ]);
+
+        patterns.insert("agent_tool_hijack".to_string(), vec![
+            Regex::new(r"(?i)(<tool_call>|run_command|write_to_file|search_web).*?(rm\s-rf|format\sC:|ACTIVE_MEMORY\.md|reverse\sshell|evil\.com)").unwrap(),
+            Regex::new(r"(?i)(execute|kullanarak|use).*?(run_command|write_to_file|search_web)").unwrap(),
         ]);
 
         patterns.insert("exfiltration".to_string(), vec![
