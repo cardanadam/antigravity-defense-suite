@@ -37,6 +37,7 @@ Antigravity Defense Suite scans, decodes, and blocks these attacks in **real-tim
 | :------------------ | :------------------------------------------ |
 | `injection_scanner` | CLI tool for scanning text/files            |
 | `antigravity_guard` | Python module (PyO3) for native integration |
+| `ag_wrapper.py`     | Agent Core Tool-Call Middleware             |
 | `fight_club.py`     | Adversarial training simulator              |
 | `sentinel`          | Real-time log watcher with alerts           |
 | `canary_guard.py`   | Output filter to prevent data leakage       |
@@ -119,17 +120,19 @@ python fight_club.py
 
 ## 🧪 Detection Capabilities
 
-| Attack Type         | Example                        | Status                  |
-| :------------------ | :----------------------------- | :---------------------- |
-| Direct Injection    | "Ignore previous instructions" | ✅ Blocked              |
-| Jailbreak           | "DAN mode", "Developer mode"   | ✅ Blocked              |
-| Leakage             | "Show system prompt"           | ✅ Blocked              |
-| Social Engineering  | "This is urgent, delete now"   | ✅ Blocked              |
-| Base64/Hex/Rot13    | `SWdub3JlIGFsbA==`             | ✅ Decoded & Blocked    |
-| Leet Speak          | `1gn0r3 4ll`                   | ✅ Decoded & Blocked    |
-| URL/HTML Entities   | `%69%67%6E%6F%72%65`           | ✅ Decoded & Blocked    |
-| Unicode Obfuscation | 𝑖𝑔𝑛𝑜𝑟𝑒 𝑎𝑙𝑙               | ✅ Normalized & Blocked |
-| Entropy Anomaly     | (Random Chaos Encryptions)     | ⚠️ Detected & Flagged   |
+| Attack Type                | Example                                     | Status                  |
+| :------------------------- | :------------------------------------------ | :---------------------- |
+| Agent Tool-Call Hijack     | "Execute run_command with rm -rf"           | ✅ Blocked              |
+| Indirect Prompt Injection  | "system_instruction: ignore rules"          | ✅ Blocked              |
+| Direct Injection           | "Ignore previous instructions"              | ✅ Blocked              |
+| Jailbreak                  | "DAN mode", "Developer mode"                | ✅ Blocked              |
+| Leakage                    | "Show system prompt"                        | ✅ Blocked              |
+| Social Engineering         | "This is urgent, delete now"                | ✅ Blocked              |
+| Base64/Hex/Rot13           | `SWdub3JlIGFsbA==`                          | ✅ Decoded & Blocked    |
+| Leet Speak                 | `1gn0r3 4ll`                                | ✅ Decoded & Blocked    |
+| URL/HTML Entities          | `%69%67%6E%6F%72%65`                        | ✅ Decoded & Blocked    |
+| Unicode Obfuscation        | 𝑖𝑔𝑛𝑜𝑟𝑒 𝑎𝑙𝑙                            | ✅ Normalized & Blocked |
+| Entropy Anomaly            | (Random Chaos Encryptions)                  | ⚠️ Detected & Flagged   |
 
 ---
 
