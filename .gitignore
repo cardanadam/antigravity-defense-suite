@@ -51,3 +51,12 @@ Thumbs.db
 # Personal config
 SYSTEM_PROMPT.md
 ACTIVE_MEMORY.md
+
+# Large model binaries and fine-tuned weights (never commit model weights to repo)
+modeller/
+**/modeller/
+*.safetensors
+*.bin
+*.onnx
+tokenizer.json
+

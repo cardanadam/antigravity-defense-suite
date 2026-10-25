@@ -56,6 +56,17 @@ Rule-based scanners always score near `100%` on the author's own development exa
 3. **What v0.4 still misses (holdout, 21 / 86):** mostly English overrides phrased with less common verbs ("supersede", "stop following"), some Turkish approval-bypass and persona phrasings, and Turkish leetspeak. Tightening false positives in v0.4 cost a few Turkish detections compared with v0.3. Treat the scanner score as a warning signal, not a guarantee.
 4. **About the holdout set:** the independent holdout sentences are intentionally **not published** in this repository, so future versions can still be measured on data the rules were never tuned on. All numbers are from a small author/auditor-written set (a few hundred sentences), not a large public benchmark.
 
+5. **v0.5 — optional neural layer (Prompt Guard 2, TR fine-tune), same independent holdout, measured through the Hermes plugin:**
+
+   | Configuration | Attacks flagged (86) | False alarms (benign 66 / benign3 30 / benign4 40) |
+   | :--- | :--- | :--- |
+   | Rule scanner only (v0.4) | 65 | 0 / 1 / 1 |
+   | Original `Llama-Prompt-Guard-2-86M` (threshold 0.8) | 26 | 0 / 0 / 4 |
+   | `Llama-Prompt-Guard-2-86M-tr-v2` alone (threshold 0.8) | 81 (TR 32/33) | 1 / 1 / 1 |
+   | **Plugin: rules + tr-v2 (HIGH/CRITICAL)** | **86** | **1 / 2 / 2** |
+
+   The fine-tune data (~5,300 TR/EN rows, 4 permissively licensed public datasets + generated rows) never contained holdout sentences (exact and 3-gram near-duplicate check = 0). `benign4` (everyday imperative sentences) was written by the auditor after seeing the first fine-tune's failures, so it is a deliberately hard set. Still a small, author/auditor-written benchmark — not a guarantee. The model runs on CPU (~0.1 s per short text); the plugin loads it in the background and never blocks Hermes.
+
 Run the development regression suite and `tool_gate` self-tests locally:
 ```bash
 python fight_club.py
@@ -140,11 +151,25 @@ decision = evaluate_tool_call("terminal", {"command": "git push --force origin m
 The suite integrates with **Hermes Agent** as a user plugin (`hermes_plugin/antigravity-defense/` in this repo):
 - Copy the folder to your Hermes plugins directory (`~/.hermes/plugins/antigravity-defense`, on Windows `%LOCALAPPDATA%\hermes\plugins\antigravity-defense`), then enable it with `hermes plugins enable antigravity-defense` (or add it under `plugins.enabled` in `config.yaml`).
 - Set `AG_DEFENSE_SUITE_DIR` to the folder where you cloned this repository (the plugin also tries a few built-in default paths).
-- Hooks used: `pre_tool_call` (tool gate), `transform_tool_result` (scan + spotlighting), `transform_llm_output` (canary redaction).
-- **Fail-Safe Fallback:** If the repository directory is moved or unavailable, the plugin emits an explicit warning to logs/stderr and the session prompt, and automatically enforces a built-in fail-safe policy (`approve` on dangerous tools + Spotlighting delimiters on untrusted outputs) rather than failing silently.
+- Hooks used: `pre_tool_call` (tool gate), `transform_tool_result` (scan + spotlighting + Prompt Guard 2), `transform_llm_output` (canary redaction).
+- **Prompt Guard 2 Subprocess Worker:** Untrusted tool results (web pages, files, search, emails, MCP) are scored by a fine-tuned classifier (`Llama-Prompt-Guard-2-86M-tr-v2`) running on CPU in an isolated Python 3.11 worker subprocess (`pg2_worker.py`). If the model indicates an attack (`p >= 0.8`), the spotlight warning is updated with `model: saldırı olası (p=...)` and the risk score is elevated to CRITICAL/HIGH without blocking execution.
+- **Fail-Safe Fallback:** If the repository directory or model worker is unavailable or times out (> 3.0s), the plugin emits an explicit warning to logs/stderr and seamlessly continues with rule-based scanning and Spotlighting delimiters instead of stalling or failing.
+
+---
+
+## Model Artifacts & Licensing Notice
+
+### Model Weights Storage
+Fine-tuned neural model weights and tokenizer files (e.g. `Llama-Prompt-Guard-2-86M-tr-v2/model.safetensors`, `tokenizer.json`) are large binary assets stored locally outside this repository (in `modeller/` or an external cache) and are strictly excluded from git tracking via `.gitignore`.
+
+### "Built with Llama" & License Notice
+The neural classifier component (`Llama-Prompt-Guard-2-86M-tr-v2`) is built on and fine-tuned from Meta's Prompt Guard 2 architecture. In compliance with the Meta Llama Community License Agreement:
+1. **Model Naming:** Any model fine-tuned or derived from the model family retains the "Llama" prefix (`Llama-Prompt-Guard-2-86M-tr-v2`).
+2. **Attribution:** This project contains software or model outputs built with Llama technology ("Built with Llama").
+3. **Usage Terms:** Use of the Llama model weights and derived models is subject to the Meta Llama Acceptable Use Policy and the applicable Meta Llama Community License Agreement.
 
 ---
 
 ## License
 
-MIT License — see [LICENSE](LICENSE).
+The code, scripts, and rules of the Antigravity Defense Suite are licensed under the **MIT License** — see [LICENSE](LICENSE).
