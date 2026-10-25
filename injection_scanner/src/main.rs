@@ -21,7 +21,7 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    let engine = engine::Engine::new();
+    let scanner = engine::Engine::new();
 
     let text_to_scan = if let Some(input) = args.input {
         input
@@ -35,22 +35,31 @@ fn main() {
         std::process::exit(1);
     };
 
-    let result = engine.scan(&text_to_scan);
+    let result = scanner.scan(&text_to_scan);
 
     if let Some(format) = args.output {
         if format == "json" {
-            let json = serde_json::to_string(&result).unwrap();
-            println!("{}", json);
+            match serde_json::to_string(&result) {
+                Ok(json) => println!("{}", json),
+                Err(e) => {
+                    eprintln!("Error serializing JSON: {}", e);
+                    std::process::exit(1);
+                }
+            }
         } else {
             eprintln!("Unknown output format: {}", format);
         }
     } else {
-        println!("Scan Result: {}", if result.is_safe { "SAFE" } else { "THREAT DETECTED" });
-        if args.verbose && !result.is_safe {
-            println!("Threat Level: {}", result.threat_level);
+        println!(
+            "Scan Result: {} (Risk Score: {}/100, Level: {})",
+            if result.is_safe { "SAFE" } else { "THREAT DETECTED" },
+            result.risk_score,
+            result.threat_level
+        );
+        if args.verbose && !result.matches.is_empty() {
             println!("Matches:");
             for (cat, conf, snip) in result.matches {
-                println!("  - [{}] (conf: {}) -> {}", cat, conf, snip);
+                println!("  - [{}] (conf: {:.2}) -> {}", cat, conf, snip);
             }
         }
     }

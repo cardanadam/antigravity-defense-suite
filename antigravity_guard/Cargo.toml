@@ -1,6 +1,6 @@
 [package]
 name = "antigravity_guard"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 [lib]
@@ -8,6 +8,11 @@ name = "antigravity_guard"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.21", features = ["extension-module"] }
+pyo3 = { version = "0.21", features = ["extension-module", "abi3-py311"] }
 regex = "1.10"
 base64 = "0.22"
+hex = "0.4"
+unicode-normalization = "0.1"
+urlencoding = "2.1"
+html-escape = "0.2"
+serde = { version = "1.0", features = ["derive"] }

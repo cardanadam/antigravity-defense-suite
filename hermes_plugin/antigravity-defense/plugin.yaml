@@ -1,0 +1,21 @@
+manifest_version: 2
+name: antigravity-defense
+version: "0.2.0"
+description: "Layered prompt-injection defense (Rust/PyO3 risk scanner, Spotlighting, Tool-Call Policy Gate, and Canary Guard)"
+author: "Antigravity"
+kind: standalone
+license: MIT
+provides_hooks:
+  - pre_tool_call
+  - transform_tool_result
+  - transform_llm_output
+optional_env:
+  - CANARY_TOKEN
+  - AG_CANARY_TOKENS
+  - CANARY_TOKEN_FILE
+  - AG_DEFENSE_SUITE_DIR
+tags:
+  - security
+  - prompt-injection
+  - spotlighting
+  - tool-gate

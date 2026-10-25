@@ -1,15 +1,18 @@
 Write-Host "==================================================" -ForegroundColor Cyan
-Write-Host "🛡️ ANTIGRAVITY DEFENSE SUITE - WINDOWS INSTALLER" -ForegroundColor Cyan
+Write-Host "ANTIGRAVITY DEFENSE SUITE - WINDOWS INSTALLER" -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 
-# 1. Generate unique Canary Token
-$guid = [guid]::NewGuid().ToString("N").ToUpper()
-$token = "AG_CANARY_${guid}_SECURE"
+# 1. Generate unique Canary Token (only if .env does not exist)
 $envPath = Join-Path $PSScriptRoot ".env"
-
-Write-Host "[*] Generating local secure token..." -ForegroundColor Yellow
-Set-Content -Path $envPath -Value "CANARY_TOKEN=$token" -Encoding UTF8
-Write-Host "[*] Token generated and saved securely to .env (DO NOT SHARE!)" -ForegroundColor Green
+if (-not (Test-Path $envPath)) {
+    $guid = [guid]::NewGuid().ToString("N").ToUpper()
+    $token = "AG_CANARY_${guid}_SECURE"
+    Write-Host "[*] Generating local secure token..." -ForegroundColor Yellow
+    Set-Content -Path $envPath -Value "CANARY_TOKEN=$token" -Encoding UTF8
+    Write-Host "[*] Token generated and saved to .env (not printed to console for security)." -ForegroundColor Green
+} else {
+    Write-Host "[*] Existing .env found; preserving current configuration." -ForegroundColor Green
+}
 
 # 2. Compile Rust Scanner
 $scannerDir = Join-Path $PSScriptRoot "injection_scanner"
@@ -53,11 +56,6 @@ if (Test-Path $guardDir) {
 }
 
 Write-Host "`n==================================================" -ForegroundColor Cyan
-Write-Host "✅ INSTALLATION COMPLETE!" -ForegroundColor Green
-Write-Host "Your system is now protected by Antigravity Defense Suite."
-Write-Host "Your unique Canary Token is: $token" -ForegroundColor Magenta
-Write-Host "Place this token inside your SYSTEM_PROMPT.md to enable the Canary Trap."
+Write-Host "INSTALLATION COMPLETE!" -ForegroundColor Green
+Write-Host "Your local Canary Token is stored in .env (keep it private)."
 Write-Host "==================================================" -ForegroundColor Cyan
-
-Write-Host "`nPress any key to exit..."
-$Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") | Out-Null
