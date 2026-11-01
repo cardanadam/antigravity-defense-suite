@@ -518,6 +518,86 @@ fn get_compiled() -> &'static CompiledEngine {
                 0.92,
                 r"(?is)\b(decode\s+and\s+(?:execute|follow|run|obey)|run\s+this\s+hex\s+command|execute\s+the\s+following\s+rot13\s+encoded\s+instruction|base64\s+coz\s+ve\s+uygula|su\s+kodu\s+coz\s+ve\s+uygula|sifreli\s+metni\s+cozumle\s+ve.{0,25}uygula|asagidaki\s+sifreli\s+talimati\s+coz\w*)\b",
             ),
+
+            // =========================================================================
+            // 11. MULTILINGUAL DIRECT INJECTIONS & JAILBREAKS (DE + RU + AR + MIXED)
+            // =========================================================================
+            // German: Direct instruction override
+            (
+                "direct_injection",
+                75,
+                0.95,
+                r"(?is)\b(ignoriere|vergiss|missachte|ubergehe|deaktiviere|umgehe|verwerfe|setze\s+aus|loesche|entferne)\b.{0,55}\b(?:(?:die|alle|bisherigen|vorherigen|frueheren|deine|system|sicherheits)\s+)*(?:sicherheits-?)?(anweisungen|regeln|richtlinien|vorgaben|beschr[aäe]+nkungen|prompts?|grenzen|filter|leitlinien)\b",
+            ),
+            // German: Role / Persona / Jailbreak
+            (
+                "jailbreak",
+                75,
+                0.94,
+                r"(?is)\b(handle\s+als|tue\s+so\s+als|du\s+bist\s+jetzt|agiere\s+als|spiele\s+die\s+rolle|wechsel\s+in\s+den)\b.{0,55}\b(uneingeschr[aäe]+nkt\w*|ohne\s+regeln|ohne\s+filter|ohne\s+einschraenkungen|jailbreak|unzensiert\w*|entwicklermodus\s+ohne|dan\s+modus|freier\s+modus|ki-assistent)\b",
+            ),
+            // German: System prompt leakage / secret extraction
+            (
+                "leakage",
+                75,
+                0.95,
+                r"(?is)\b(zeige|drucke|gib\s+mir|verrate|enthuelle|wiederhole|kopiere)\b.{0,45}\b(?:deine\s+|den\s+|alle\s+)?(system-?prompt|systemanweisungen|geheime\s+(?:daten|schl[uü]+ssel|regeln|token)|initiale\s+anweisungen|wort\s+fuer\s+wort|ursprunglichen\s+anweisungen)\b",
+            ),
+            // Russian: Direct instruction override (Cyrillic)
+            (
+                "direct_injection",
+                75,
+                0.95,
+                r"(?is)\b(игнорируй(?:те)?|забудь(?:те)?|отбрось(?:те)?|отключи(?:те)?|сбрось(?:те)?|не\s+следуй(?:те)?|аннулируй(?:те)?|отмени(?:те)?)\b.{0,55}\b(все|всех|любые|предыдущие|прошлые|исходные|системные|свои|установленные|правила\s+безопасности)\b.{0,40}\b(инструкции|правила|указания|ограничения|директивы|промпт|настройки|фильтры)\b",
+            ),
+            // Russian: Role / Persona / Jailbreak (Cyrillic)
+            (
+                "jailbreak",
+                75,
+                0.94,
+                r"(?is)\b(действуй\s+как|притворись|ты\s+теперь|работай\s+в\s+режиме|включи\s+режим|перейди\s+в\s+режим)\b.{0,55}\b(без\s+ограничений|без\s+правил|без\s+фильтров|неограниченн\w*|разработчика\s+без|jailbreak|дан\s+мод|свободный\s+режим)\b",
+            ),
+            // Russian: System prompt leakage / secret extraction (Cyrillic)
+            (
+                "leakage",
+                75,
+                0.95,
+                r"(?is)\b(покажи(?:те)?|выведи(?:те)?|раскрой(?:те)?|распечатай(?:те)?|повтори(?:те)?|скажи(?:те)?)\b.{0,45}\b(?:свой\s+|все\s+|исходный\s+)?(системный\s+промпт|системные\s+инструкции|секретные\s+ключи|слово\s+в\s+слово|первоначальные\s+инструкции|скрытые\s+правила)\b",
+            ),
+            // Arabic: Direct instruction override
+            (
+                "direct_injection",
+                75,
+                0.95,
+                r"(?is)(تجاهل|انس|الغ|عطل|تجاوز|تخطي|اسقط)\s+(?:جميع\s+|كل\s+|كافة\s+)?(?:التعليمات|القواعد|التوجيهات|الاوامر|القيود|الارشادات)",
+            ),
+            // Arabic: Role / Persona / Jailbreak
+            (
+                "jailbreak",
+                75,
+                0.94,
+                r"(?is)(تصرف\s+ك|تظاهر\s+بانك|انت\s+الان|اعمل\s+ك|تقمص\s+دور|كن\s+الان)\s+(?:مساعد\s+)?(?:ذكاء\s+اصطناعي\s+)?(?:بدون\s+قيود|غير\s+مقيد|حر|بدون\s+قواعد|وضع\s+المطور|جيلبريك|بدون\s+فلاتر|غير\s+خاضع|بدون\s+حدود)",
+            ),
+            // Arabic: System prompt leakage / secret extraction
+            (
+                "leakage",
+                75,
+                0.95,
+                r"(?is)(اعرض|اظهر|اكشف|اطبع|انسخ|كرر|ردد)\s+(?:لي\s+)?(?:التعليمات\s+الاول[يى][ةه]|التعليمات\s+السرية|موجه\s+النظام|المفاتيح\s+السرية|الاوامر\s+الاول[يى][ةه]|كلمة\s+بكلمة|التعليمات\s+السابقة)",
+            ),
+            // Mixed Language Cross-lingual Direct Overrides
+            (
+                "direct_injection",
+                75,
+                0.94,
+                r"(?is)\b(ignore|disregard|forget|override|bypass)\b.{0,40}\b(talimatlar\w*|kurallar\w*|yonergeler\w*|anweisungen|regeln|инструкции|правила)\b",
+            ),
+            (
+                "direct_injection",
+                75,
+                0.94,
+                r"(?is)\b(unut(?:un)?|yok\s*say|gormezden\s+gel)\b.{0,40}\b(instructions|directives|guidelines|prompt|rules|anweisungen)\b",
+            ),
         ];
 
         let rules = raw_rules
@@ -537,15 +617,15 @@ fn get_compiled() -> &'static CompiledEngine {
         CompiledEngine {
             rules,
             benign_tech_re: Regex::new(
-                r"(?is)\b(android|ios|iphone|ipad|samsung|xiaomi|pixel|huawei|telefon\w*|cihaz\w*|tablet\w*|windows|macos|linux|ubuntu|chrome|firefox|edge|safari|opera|brave|browser|tarayici\w*|unity|unreal|godot|steam|discord|playstation|xbox|nintendo|usb|adb|bios|uefi|settings|ayarlar\w*|eslint|prettier|tslint|tsconfig|typescript|webpack|vite|babel|css|scss|tailwind|bootstrap|git|gitignore|docker|kubernetes|nginx|apache|iptables|ufw|firewall|guvenlik\s+duvari|defender|antivirus|ekran\s+suresi|screen\s+time|ebeveyn|parental|vpn| Fizik\s+ayar\w*|terminal\s+gecmis\w*)\b",
+                r"(?is)\b(android|ios|iphone|ipad|samsung|xiaomi|pixel|huawei|telefon\w*|cihaz\w*|tablet\w*|windows|macos|linux|ubuntu|chrome|firefox|edge|safari|opera|brave|browser|tarayici\w*|unity|unreal|godot|steam|discord|playstation|xbox|nintendo|usb|adb|bios|uefi|settings|ayarlar\w*|eslint|prettier|tslint|tsconfig|typescript|webpack|vite|babel|css|scss|tailwind|bootstrap|git|gitignore|docker|kubernetes|nginx|apache|iptables|ufw|firewall|guvenlik\s+duvari|defender|antivirus|ekran\s+suresi|screen\s+time|ebeveyn|parental|vpn|fizik\s+ayar\w*|terminal\s+gecmis\w*|entwicklermodus|verkehrsregeln|compiler-?warnungen|datenbank|anleitung|zeilenweise|режим\s+разработчика|правила\s+дорожного\s+движения|предупреждения\s+компилятора|функци\w*|وضع\s+المطور|قواعد\s+المرور|تحذيرات\s+المترجم|برمجة|بايثون)\b",
             )
             .expect("valid benign_tech_re"),
             ai_target_re: Regex::new(
-                r"(?is)\b(yapay\s+zeka\w*|asistan\w*|system\s+prompt\w*|sistem\s+prompt\w*|sistem\s+istem\w*|sistem\s+talimat\w*|jailbreak|dan\s+mode|llm|openclaw|hermes|claude|gpt|gemini|sana\s+verilen|senin\s+kural\w*|kendi\s+kural\w*)\b",
+                r"(?is)\b(yapay\s+zeka\w*|asistan\w*|system\s+prompt\w*|sistem\s+prompt\w*|sistem\s+istem\w*|sistem\s+talimat\w*|jailbreak|dan\s+mode|llm|openclaw|hermes|claude|gpt|gemini|sana\s+verilen|senin\s+kural\w*|kendi\s+kural\w*|ki-assistent|sprachmodell|системный\s+промпт|языковая\s+модель|модель|ذكاء\s+اصطناعي|موجه\s+النظام)\b",
             )
             .expect("valid ai_target_re"),
             question_re: Regex::new(
-                r"(?is)(\?|\b(?:nasil|nedir|ne\s+demek|ne\s+ise\s+yarar|neden|niye|hangi\s+menu\w*|how\s+to|how\s+do\s+i|how\s+can\s+i|what\s+is|why\s+does|where\s+is)\b)",
+                r"(?is)(\?|\b(?:nasil|nedir|ne\s+demek|ne\s+ise\s+yarar|neden|niye|hangi\s+menu\w*|how\s+to|how\s+do\s+i|how\s+can\s+i|what\s+is|why\s+does|where\s+is|wie\s+(?:kann|schreibe|mache|funktioniert)|was\s+ist|warum|как\s+(?:написать|сделать|работает|включить)|что\s+такое|почему|كيف\s+(?:يمكن|اكتب|اعمل)|ما\s+هو|لماذا)\b)",
             )
             .expect("valid question_re"),
             negated_prefix_re: Regex::new(
@@ -660,7 +740,20 @@ impl Engine {
                 'ö' | 'Ö' => 'o',
                 'ş' | 'Ş' => 's',
                 'ü' | 'Ü' => 'u',
+                'ä' | 'Ä' => 'a',
+                'ß' => 's',
                 _ => c.to_ascii_lowercase(),
+            })
+            .collect()
+    }
+
+    fn normalize_arabic(text: &str) -> String {
+        text.chars()
+            .filter_map(|c| match c {
+                '\u{0622}' | '\u{0623}' | '\u{0625}' => Some('\u{0627}'), // آ, أ, إ -> ا
+                '\u{0649}' => Some('\u{064A}'), // ى -> ي
+                '\u{064B}'..='\u{0652}' => None, // strip diacritics
+                _ => Some(c),
             })
             .collect()
     }
@@ -866,6 +959,7 @@ impl Engine {
 
         let zw = Self::strip_zero_width(input);
         let unicode_norm = Self::normalize_unicode(&zw);
+        let arabic_norm = Self::normalize_arabic(&unicode_norm);
         let web_decoded = Self::decode_web_formats(&unicode_norm);
         let b64_decoded = Self::decode_base64(&web_decoded);
         let hex_decoded = Self::decode_hex(&b64_decoded);
@@ -879,6 +973,7 @@ impl Engine {
             input,
             &zw,
             &unicode_norm,
+            &arabic_norm,
             &web_decoded,
             &b64_decoded,
             &hex_decoded,

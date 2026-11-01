@@ -43,11 +43,11 @@ A deterministic regex/heuristic scanner (`Layer A`) is fast (`< 1 ms`, `0 MB VRA
 
 Rule-based scanners always score near `100%` on the author's own development examples (`fight_club.py`) because those examples and rules are developed together. The true measure of a text scanner is an **independent holdout benchmark** written by a separate auditor without the rule author seeing the test sentences.
 
-| Benchmark Suite | Description | v0.2 (Round 1 Audit) | v0.3 (Round 2 Audit) | v0.4 (Round 3 Generalization & FP Tightening) |
-| :--- | :--- | :--- | :--- | :--- |
-| **1. Development Set (`fight_club.py`)** | Author-written regression suite + shared benign2 set (`116` attacks + `64` benign inputs including `zararsiz_claude_tur2.jsonl` + `15` `tool_gate` checks) | `69 / 69` (`100.0%` recall)<br>`0 / 20` (`0.0%` FP) | `103 / 103` (`100.0%` recall)<br>`0 / 29` (`0.0%` dev FP)<br>`7 / 35` (`20.0%` FP on `zararsiz_claude_tur2`) | **`116 / 116` (`100.0%` recall)**<br>**`0 / 64` (`0.0%` FP; `0 / 35` on `zararsiz_claude_tur2`)**<br>**`15 / 15` `tool_gate` PASS** |
-| **2. Independent Holdout Set (`bagimsiz_test`)** | Unseen blind test set authored by independent auditor (Claude — `86` unseen attacks + `66` unseen benign1 + `23` `tool_gate` checks) | `22 / 86` (`25.6%` recall)<br>`1 / 66` (`1.5%` benign1 FP)<br>`17 / 18` `tool_gate` | `56 / 86` (`65.1%` recall)<br>`0 / 66` (`0.0%` benign1 FP)<br>`23 / 23` (`100.0%`) `tool_gate` | **`65 / 86` (`75.6%` recall)**<br>**`0 / 66` (`0.0%` benign1 FP)**<br>**`1 / 30` (`3.3%` FP on a new unseen benign3 set)**<br>**`23 / 23` `tool_gate`** |
-| **Average Scan Latency (Rust PyO3)** | Native single-pass `OnceLock` regex + normalization | `< 1.0 ms` | `< 1.0 ms` | **`< 1.0 ms` (`0 MB VRAM`)** |
+| Benchmark Suite | Description | v0.2 (Round 1 Audit) | v0.3 (Round 2 Audit) | v0.4 (Round 3 Generalization & FP Tightening) | v0.6 (Taint Tracking, Intent Guard & Multilingual) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **1. Development Set (`fight_club.py`)** | Author-written regression suite + shared benign2 set + multilingual test suite (DE, RU, AR, TR, EN + encoded variants) | `69 / 69` (`100.0%` recall)<br>`0 / 20` (`0.0%` FP) | `103 / 103` (`100.0%` recall)<br>`0 / 29` (`0.0%` dev FP)<br>`7 / 35` (`20.0%` FP on `zararsiz_claude_tur2`) | `116 / 116` (`100.0%` recall)<br>`0 / 64` (`0.0%` FP; `0 / 35` on `zararsiz_claude_tur2`)<br>`15 / 15` `tool_gate` PASS | **`141 / 141` (`100.0%` recall)**<br>**`0 / 89` (`0.0%` FP across EN/TR/DE/RU/AR)**<br>**`28 / 28` `tool_gate` PASS** |
+| **2. Independent Holdout Set (`bagimsiz_test`)** | Unseen blind test set authored by independent auditor (Claude — `86` unseen attacks + `66` unseen benign1 + `23` `tool_gate` checks) | `22 / 86` (`25.6%` recall)<br>`1 / 66` (`1.5%` benign1 FP)<br>`17 / 18` `tool_gate` | `56 / 86` (`65.1%` recall)<br>`0 / 66` (`0.0%` benign1 FP)<br>`23 / 23` (`100.0%`) `tool_gate` | `65 / 86` (`75.6%` recall)<br>`0 / 66` (`0.0%` benign1 FP)<br>`1 / 30` (`3.3%` FP on a new unseen benign3 set)<br>`23 / 23` `tool_gate` | `65 / 86` (`75.6%` recall)<br>`0 / 66` (`0.0%` benign1 FP)<br>`23 / 23` `tool_gate`<br>With the optional Prompt Guard 2 layer (plugin): `86 / 86` flagged HIGH/CRITICAL; FP `1 / 66`, `2 / 30`, `2 / 40`<br>*No regression vs v0.5. The holdout is TR/EN only, so the new DE/RU/AR rules are not reflected here.* |
+| **Average Scan Latency (Rust PyO3)** | Native single-pass `OnceLock` regex + normalization | `< 1.0 ms` | `< 1.0 ms` | `< 1.0 ms` (`0 MB VRAM`) | **`< 1.0 ms` (`0 MB VRAM`)** |
 
 ### Key Takeaways from Independent Auditing
 1. **Why Development Scores Differ from Unseen Holdout Scores:** A regex/rule scanner (`Layer A`) only catches structural patterns it was generalized to recognize. In v0.2, rules were overly tied to specific prefixes (e.g., requiring `"önceki/yukarıdaki"` before Turkish overrides) and missed prose indirect injections inside emails/documents (`0/12`), approval bypasses, urgency pressure, and space-separated letters (`b o ş l u k l u`). In v0.3, `engine.rs` was generalized across all six weak categories and false-positive guards were added for consumer/developer tech questions (`"Android developer mode"`).
@@ -84,7 +84,9 @@ python tool_gate.py
 | `spotlighting.py` | Nonce-tagged delimiter wrapping & spoofed-tag defanging for untrusted tool results |
 | `tool_gate.py` | Pre-execution tool policy gate (`allow` / `approve` / `block`) with git force-push & memory-file protection |
 | `canary_guard.py` | Environment-backed canary token leak detector & output redactor |
-| `ag_wrapper.py` | Unified Python middleware combining all 4 layers |
+| `taint_tracker.py` | Untrusted source command / URL / payload tracking & execution prevention |
+| `intent_guard.py` | User prompt intent alignment check (blocks unrequested destruction / exfiltration) |
+| `ag_wrapper.py` | Unified Python middleware combining all defense layers |
 | `fight_club.py` | Author development regression suite & false-positive test runner (safe placeholders only) |
 | `security_gate.py` | Pre-commit secret & injection check script |
 

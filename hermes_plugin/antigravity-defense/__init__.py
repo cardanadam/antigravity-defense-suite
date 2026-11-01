@@ -96,9 +96,14 @@ _FALLBACK_SENSITIVE_TOOLS = {
 
 _FALLBACK_SENSITIVE_ARGS_RE = re.compile(
     r"(?is)(\b(?:Remove-Item|ri|del|erase|rd|rmdir|unlink|rm)\b|"
-    r"\bgit\b[^\n]*\b(?:push\b[^\n]*(?:--force|-f|\+[a-zA-Z0-9_./-]+)|reset\s+--hard|clean\s+-[a-zA-Z]*f)|"
+    r"\bgit\b[^\n]*\b(?:push\b[^\n]*(?:--force|-f|\+[a-zA-Z0-9_./-]+)|reset\s+--hard|clean\s+-[a-zA-Z]*f|"
+    r"filter-branch|filter-repo|rebase|commit\s+[^\n]*--amend)|"
     r"\b(?:ACTIVE_MEMORY\.md|BASKAN_TALIMATLARI\.md|ORTAK_GUNLUK\.md|SYSTEM_PROMPT\.md|"
-    r"API_KEYS\.md|CANARY_TOKEN\.txt|Secrets|Credentials|Keystore|Wallets|ANAHTARLAR|\.env|\.jks)\b|"
+    r"session_learnings\.md|AGENTS\.md|CLAUDE\.md|settings\.json|hooks?[\\/]|hook_[a-zA-Z0-9_\-\.]+|"
+    r"API_KEYS\.md|CANARY_TOKEN\.txt|Secrets|Credentials|Keystore|Wallets|ANAHTARLAR|"
+    r"SIFRE_NOTLARI|sifre_notlari|credentials\.json|service_account\.json|\.env|\.jks)\b|"
+    r"\b(?:schtasks|Register-ScheduledTask|Set-ScheduledTask|crontab)\b|"
+    r"\b(?:Set-MpPreference|netsh\s+advfirewall|Disable-NetFirewallRule)\b|"
     r"\b(?:curl|Invoke-RestMethod|Invoke-WebRequest|wget)\b[^\n]*(?:POST|--data|-d\s))"
 )
 
@@ -497,8 +502,16 @@ def on_pre_tool_call(
 ) -> Optional[Dict[str, Any]]:
     """Inspect outgoing tool calls and return block / approve / None (allow)."""
     safe_args = args if isinstance(args, dict) else {}
+    user_prompt = kwargs.get("user_prompt") or kwargs.get("prompt")
+    if not user_prompt and "context" in kwargs:
+        ctx = kwargs["context"]
+        if isinstance(ctx, dict):
+            user_prompt = ctx.get("user_prompt") or ctx.get("prompt") or ctx.get("last_user_message")
+        elif hasattr(ctx, "last_user_message"):
+            user_prompt = getattr(ctx, "last_user_message")
+
     if SUITE_LOADED:
-        decision = evaluate_tool_call(tool_name or "", safe_args)
+        decision = evaluate_tool_call(tool_name or "", safe_args, user_prompt=user_prompt)
     else:
         decision = _fallback_evaluate_tool_call(tool_name or "", safe_args)
 

@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, Dict, Tuple
 
 from canary_guard import check_output
+from taint_tracker import record_untrusted_data
 
 logger = logging.getLogger(__name__)
 
@@ -223,6 +224,12 @@ def spotlight_tool_result(
     Always checks canary leaks and scans for indirect prompt injection.
     """
     should_always_wrap = is_untrusted_tool(tool_name) or bool(model_note)
+    if should_always_wrap and isinstance(result_text, str) and result_text.strip():
+        try:
+            record_untrusted_data(tool_name or "external_tool", result_text)
+        except Exception as exc:
+            logger.debug("Taint record failed: %s", exc)
+
     info = spotlight_content(
         result_text,
         source=tool_name or "tool_result",

@@ -22,11 +22,15 @@ EXEMPT_TEST_FILES = frozenset({
     "tool_gate.py",
     "spotlighting.py",
     "ag_wrapper.py",
+    "taint_tracker.py",
+    "intent_guard.py",
 })
 
 
 def run_security_tests() -> bool:
     """Scan staged git files for prompt injection or secret leaks."""
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     print("🛡️ ANTIGRAVITY SECURITY GATE")
     print("=" * 50)
     print("Running pre-commit security checks...\n")
